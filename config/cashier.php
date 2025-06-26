@@ -4,7 +4,6 @@ use Laravel\Cashier\Console\WebhookCommand;
 use Laravel\Cashier\Invoices\DompdfInvoiceRenderer;
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Stripe Keys
@@ -124,4 +123,17 @@ return [
 
     'logger' => env('CASHIER_LOGGER'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Price IDs
+    |--------------------------------------------------------------------------
+    |
+    | The Stripe price IDs for subscription and lifetime purchases.
+    |
+    */
+
+    'price_ids' => [
+        'subscription' => env('STRIPE_PRICE_ID_SUBSCRIPTION','price_1QteVZHSbCCl70iIoppjlXqM'),
+        'lifetime' => env('STRIPE_PRICE_ID_LIFETIME','price_1QterDHSbCCl70iIyXOVbdor'),
+    ],
 ];

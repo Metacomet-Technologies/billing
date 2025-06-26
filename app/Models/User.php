@@ -4,11 +4,14 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Cashier\Billable;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $name
@@ -37,7 +40,7 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, Billable;
 
     /**
      * The attributes that are mass assignable.
@@ -48,6 +51,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'discord_id',
     ];
 
     /**
@@ -71,5 +75,39 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the licenses owned by this user.
+     */
+    public function licenses(): HasMany
+    {
+        return $this->hasMany(License::class);
+    }
+
+    /**
+     * Get the guilds this user is an admin of.
+     */
+    public function guilds(): BelongsToMany
+    {
+        return $this->belongsToMany(Guild::class, 'guild_users')
+                    ->withPivot('is_admin')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get the guilds this user is an admin of.
+     */
+    public function adminGuilds(): BelongsToMany
+    {
+        return $this->guilds()->wherePivot('is_admin', true);
+    }
+
+    /**
+     * Check if user is admin of a specific guild.
+     */
+    public function isAdminOf(Guild $guild): bool
+    {
+        return $this->adminGuilds()->where('guild_id', $guild->id)->exists();
     }
 }
